@@ -40,8 +40,11 @@ def matrix_factorization(R, indices, K=3, steps=5000, alpha=0.0002, beta=0.02):
 
     for step in range(steps):
         print("Epoch", step, "starting to train")
+        #print("P:", P)
+        #print("Q:", Q.T)
         for index, value in np.ndenumerate(R):
             if value > 0:
+                #print(index)
                 # calculate error
                 eij = np.subtract(value, np.dot(P[index[0],:],Q[:,index[1]]))
 
@@ -141,21 +144,21 @@ def main():
     logger.info( 'Training prediction functions on the train data...' )
     logger.info( 'Generating array from .csv file' )
 
-    train_data = genfromtxt('CW1/train_100k_withratings.csv', delimiter=',')
-    #train_data = load_data( file = 'CW1/train_100k_withratings.csv' )
-    #test_data = load_data( file = 'CW1/test_100k_withoutratings.csv', train=False)
+    train_data_20M = genfromtxt('CW2/train_20M_withratings.csv', delimiter=',')
+    #train_data_20M = load_data( file = 'CW2/train_20M_withratings.csv' )
+    #test_data_20M = load_data( file = 'CW2/train_20M_withoutratings.csv', train=False)
 
-    testing_indexes = np.random.randint(90570, size=18114)
-    test = train_data[testing_indexes,:]
+    testing_indexes_20M = np.random.randint(18615333, size=3723066)
+    test_20M = train_data_20M[testing_indexes_20M,:]
 
-    rating_matrix_train = train_model(train_data=train_data)
-    rating_matrix_test = make_rating_test(ratingMatrix=rating_matrix_train, test_values=test)
+    rating_matrix_train = train_model(train_data=train_data_20M)
+    #rating_matrix_test = make_rating_test(ratingMatrix=rating_matrix_train, test_values=test_20M)
 
-    indices = get_indices(test)
+    indices = get_indices(test_20M)
 
-    print(rating_matrix_test.shape)
+    print(rating_matrix_train.shape)
 
-    rating_matrices = np.array_split(rating_matrix_test, 3, axis=1)
+    rating_matrices = np.array_split(rating_matrix_train, 3, axis=1)
 
     print(rating_matrices[0].shape)
     print(rating_matrices[1].shape)
@@ -167,26 +170,26 @@ def main():
     currentTime = time.time()
 
     nP1, nQ1 = matrix_factorization(rating_matrices[0], indices, K=K, steps=ITER_STEPS)
-    nP2, nQ2 = matrix_factorization(rating_matrices[1], indices, K=K, steps=ITER_STEPS)
-    nP3, nQ3 = matrix_factorization(rating_matrices[2], indices, K=K, steps=ITER_STEPS)
+    #nP2, nQ2 = matrix_factorization(rating_matrices[1], indices, K=K, steps=ITER_STEPS)
+    #nP3, nQ3 = matrix_factorization(rating_matrices[2], indices, K=K, steps=ITER_STEPS)
 
     stopTime = time.time()
     timetaken = stopTime - currentTime
     print("Algorithm took: ", round(timetaken,1), "s to run")
 
     nR1 = np.dot(nP1, nQ1.T)
-    nR2 = np.dot(nP2, nQ2.T)
-    nR3 = np.dot(nP3, nQ3.T)
+    #nR2 = np.dot(nP2, nQ2.T)
+    #nR3 = np.dot(nP3, nQ3.T)
 
     print(nR1.shape)
-    print(nR2.shape)
-    print(nR3.shape)
+    #print(nR2.shape)
+    #print(nR3.shape)
 
     np.savetxt("CW2/nR1.csv", nR1, delimiter=",")
-    np.savetxt("CW2/nR2.csv", nR2, delimiter=",")
-    np.savetxt("CW2/nR3.csv", nR3, delimiter=",")
+    #np.savetxt("CW2/nR2.csv", nR2, delimiter=",")
+    #np.savetxt("CW2/nR3.csv", nR3, delimiter=",")
 
-    nR1_LOAD = genfromtxt('CW2/nR1.csv', delimiter=',')
+    """nR1_LOAD = genfromtxt('CW2/nR1.csv', delimiter=',')
     nR2_LOAD = genfromtxt('CW2/nR2.csv', delimiter=',')
     nR3_LOAD = genfromtxt('CW2/nR3.csv', delimiter=',')
 
@@ -206,7 +209,7 @@ def main():
     print("RMSE:", rmse)
 	
     #serialize_predictions(output_file='CW2/submission.csv', ratingMatrix=rating_matrix_test, test_values=test)
-    #logger.info( 'Predictions saved to file submission.csv' )
+    #logger.info( 'Predictions saved to file submission.csv' )"""
     
 
 
